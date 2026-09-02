@@ -1,0 +1,2717 @@
+{
+  "info": {
+    "_postman_id": "fbfd01f8-8e6a-4744-982f-64ea4cb9b174",
+    "name": "Panda-Lite",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57561002",
+    "_collection_link": "https://go.postman.co/collection/57561002-fbfd01f8-8e6a-4744-982f-64ea4cb9b174?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "health-check",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{BASE_URL}}/_internal/health",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "_internal",
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "inspect database state",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"users\": [ /* User objects, see Data Models */ ],\r\n  \"restaurants\": [ /* Restaurant objects */ ],\r\n  \"menuItems\": [ /* MenuItem objects */ ],\r\n  \"orders\": [ /* Order objects, each including nested items and timeline */ ],\r\n  \"ratings\": [ /* Rating objects */ ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/_internal/db-state",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "_internal",
+            "db-state"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Verify database state after reset",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "pm.environment.set(\"teamContext\", \"team-qa\");"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Database reset succeeded\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response is JSON\", function () {\r",
+              "    pm.response.to.be.json;\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/_internal/reset-database",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "_internal",
+            "reset-database"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "registration customer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"User ID exists\", function () {\r\n    pm.expect(data).to.have.property(\"id\");\r\n});\r\n\r\npm.test(\"Correct role\", function () {\r\n    pm.expect(data.role).to.eql(\"customer\");\r\n});\r\n\r\npm.test(\"Correct email\", function () {\r\n    pm.expect(data.email).to.eql(\"customer001@example.com\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"id\": \"uuid\",\r\n    \"name\": \"Alice Customer\",\r\n    \"email\": \"qa.customer8jgul55512@example.com\",\r\n    \"password\": \"@@@%#\",\r\n    \"role\": \"customer\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/register",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "registration rider",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Role is rider\", function () {\r\n    pm.expect(data.role).to.eql(\"rider\");\r\n});\r\n\r\npm.test(\"ID exists\", function () {\r\n    pm.expect(data.id).to.exist;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"id\": \"uuid\",\r\n    \"name\": \"Alice rider\",\r\n    \"email\": \"qa,rider6u6@example.com\",\r\n    \"password\": \"3ttttd\",\r\n    \"role\": \"rider\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/register",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "registration restaurant",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Role is restaurant\", function () {\r\n    pm.expect(data.role).to.eql(\"restaurant\");\r\n});\r\n\r\npm.test(\"ID exists\", function () {\r\n    pm.expect(data.id).to.exist;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"id\": \"uuid\",\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restauranto79jh454k@example.com\",\r\n    \"password\": \"pfffff\",\r\n    \"role\": \"restaurant\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/register",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "login authentication customer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Login returns 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"JWT token exists\", function () {\r\n    pm.expect(response.token).to.exist;\r\n});\r\n\r\npm.test(\"JWT token is a string\", function () {\r\n    pm.expect(response.token).to.be.a(\"string\");\r\n});\r\n\r\npm.environment.set(\"token\", response.token);\r\n\r\nconsole.log(\"JWT Token:\", response.token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{  \"id\": \"uuid\",\r\n    \"name\": \"Alice Customer\",\r\n    \"email\": \"qa.customer8jgul5512@example.com\",\r\n    \"password\": \"@@@%###\",\r\n    \"role\": \"customer\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "valid customer registration",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"User has an ID\", function () {\r\n    pm.expect(json.id).to.exist;\r\n});\r\n\r\npm.test(\"Name is correct\", function () {\r\n    pm.expect(json.name).to.eql(\"QA Customer\");\r\n});\r\n\r\npm.test(\"Email is correct\", function () {\r\n    pm.expect(json.email).to.eql(pm.environment.get(\"customerEmail\"));\r\n});\r\n\r\npm.test(\"Role is customer\", function () {\r\n    pm.expect(json.role).to.eql(\"customer\");\r\n});\r\n\r\npm.test(\"passwordHash is NOT returned\", function () {\r\n    pm.expect(json).to.not.have.property(\"passwordHash\");\r\n});\r\n\r\npm.test(\"UUID was generated\", function () {\r\n    const uuidRegex =\r\n        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;\r\n\r\n    pm.expect(json.id).to.match(uuidRegex);\r\n});\r\n\r\npm.environment.set(\"customerId\", json.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n \"id\": \"uuid\",\r\n    \"name\": \"Alice Customer\",\r\n    \"email\": \"qa.customer87tj5y56fg2@example.com\",\r\n    \"password\": \"hh5883\",\r\n    \"role\": \"customer\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/register",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "missing required field customer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Correct validation error\", function () {\r\n    pm.expect(json.error).to.eql(\r\n        \"name, email, password and role are required\"\r\n    );\r\n});\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Bob\",\r\n    \"email\": \"32f7ih11@example.com\",\r\n    \"password\": \"344433\",\r\n    \"role\": \"customer\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/register",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "invalid role",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 400\", function () {\r",
+              "    pm.response.to.have.status(400);\r",
+              "});\r",
+              "\r",
+              "const json = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Invalid role rejected\", function () {\r",
+              "    pm.expect(json.error).to.eql(\r",
+              "        \"role must be one of customer, restaurant, rider\"\r",
+              "    );\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"bob\",\r\n    \"email\": \"invalidrole7@example.com\",\r\n    \"password\": \"pass123\",\r\n    \"role\": \"admin\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/register",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "duplicate email",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Duplicate email returns 409\", function () {\r",
+              "    pm.response.to.have.status(409);\r",
+              "});\r",
+              "\r",
+              "const json = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Correct duplicate error\", function () {\r",
+              "    pm.expect(json.error).to.eql(\"Email already in use\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Duplicate Test\",\r\n    \"email\": \"duplicate@example.com\",\r\n    \"password\": \"pass123\",\r\n    \"role\": \"customer\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/register",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "password length",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "m.test(\"Short password rejected\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Correct password validation\", function () {\r\n    pm.expect(json.error).to.eql(\r\n        \"Password must be at least 6 characters long\"\r\n    );\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Short Password\",\r\n    \"email\": \"shortpasswordkl2@example.com\",\r\n    \"password\": \"149996\",\r\n    \"role\": \"customer\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/register",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "UUID generation",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"UUID exists\", function () {\r\n    pm.expect(data.id).to.exist;\r\n});\r\n\r\npm.test(\"ID is valid UUID\", function () {\r\n    pm.expect(data.id).to.match(\r\n        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i\r\n    );\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"id\": \"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\",\r\n    \"name\": \"bob\",\r\n    \"email\": \"3219771yee@example.com\",\r\n    \"password\": \"344433\",\r\n    \"role\": \"customer\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/register",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "passwordHash",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const data = pm.response.json();\r\n\r\npm.test(\"passwordHash is NOT returned\", function () {\r\n    pm.expect(data).to.not.have.property(\"passwordHash\");\r\n});\r\n\r\npm.test(\"password is NOT returned\", function () {\r\n    pm.expect(data).to.not.have.property(\"password\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"id\": \"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\",\r\n    \"name\": \"bob\",\r\n    \"email\": \"3211ejiue@example.com\",\r\n    \"password\": \"344433\",\r\n    \"role\": \"customer\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/register",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "customer login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Login returns 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"JWT token exists\", function () {\r\n    pm.expect(response.token).to.exist;\r\n});\r\n\r\npm.test(\"JWT token is a string\", function () {\r\n    pm.expect(response.token).to.be.a(\"string\");\r\n});\r\n\r\npm.environment.set(\"token\", response.token);\r\n\r\nconsole.log(\"JWT Token:\", response.token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"qa.customer87t5y56fg2@example.com\",\r\n    \"password\": \"hh5883\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "customer valid login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Token exists\", function () {\r\n    pm.expect(data.token).to.exist;\r\n});\r\n\r\npm.test(\"Token is a string\", function () {\r\n    pm.expect(data.token).to.be.a(\"string\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"qa.customer87t5y56fg2@example.com\",\r\n    \"password\": \"hh5883\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Automatically Save JWT in Postman",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Login successful\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "const json = pm.response.json();\r",
+              "\r",
+              "pm.test(\"JWT token exists\", function () {\r",
+              "    pm.expect(json).to.have.property(\"token\");\r",
+              "});\r",
+              "\r",
+              "pm.environment.set(\"token\", json.token);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"email\": \"qa.customer3512@example.com\",\r\n        \"password\": \"pa123\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Missing Credentials",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {\r",
+              "    pm.response.to.have.status(400);\r",
+              "});\r",
+              "\r",
+              "const data = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Missing credentials rejected\", function () {\r",
+              "    pm.expect(data.error).to.eql(\r",
+              "        \"email and password are required\"\r",
+              "    );\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"email\": \"qa.customer3512@example.com\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Wrong Password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Wrong password returns 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Correct error\", function () {\r\n    pm.expect(data.error).to.eql(\"Invalid credentials\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"email\": \"qa.customer3512@example.com\",\r\n        \"password\": \"pa123\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "login authentication rider",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Login returns 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "const response = pm.response.json();\r",
+              "\r",
+              "pm.test(\"JWT token exists\", function () {\r",
+              "    pm.expect(response.token).to.exist;\r",
+              "});\r",
+              "\r",
+              "pm.test(\"JWT token is a string\", function () {\r",
+              "    pm.expect(response.token).to.be.a(\"string\");\r",
+              "});\r",
+              "\r",
+              "pm.environment.set(\"token\", response.token);\r",
+              "\r",
+              "console.log(\"JWT Token:\", response.token);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"qa.rider186@example.com\",\r\n    \"password\": \"322121\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "valid rider registration",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 201\", function () {\r",
+              "    pm.response.to.have.status(201);\r",
+              "});\r",
+              "\r",
+              "const json = pm.response.json();\r",
+              "\r",
+              "pm.test(\"User has an ID\", function () {\r",
+              "    pm.expect(json.id).to.exist;\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Name is correct\", function () {\r",
+              "    pm.expect(json.name).to.eql(\"QA rider\");\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"qa.rider186@example.com\",\r\n    \"password\": \"322121\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "missing req field rider",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Correct validation error\", function () {\r\n    pm.expect(json.error).to.eql(\r\n        \"name, email, password and role are required\"\r\n    );\r\n});\r\n\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{json_web_token_0gdh}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"qa.rider186@example.com\",\r\n    \"password\": \"322121\"\r\n    }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "rider login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Login returns 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"JWT token exists\", function () {\r\n    pm.expect(response.token).to.exist;\r\n});\r\n\r\npm.test(\"JWT token is a string\", function () {\r\n    pm.expect(response.token).to.be.a(\"string\");\r\n});\r\n\r\npm.environment.set(\"token\", response.token);\r\n\r\nconsole.log(\"JWT Token:\", response.token);\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"qa.rider186@example.com\",\r\n    \"password\": \"322121\"\r\n    }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "rider valid login",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "const data = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Token exists\", function () {\r",
+              "    pm.expect(data.token).to.exist;\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Token is a string\", function () {\r",
+              "    pm.expect(data.token).to.be.a(\"string\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"qa.rider186@example.com\",\r\n    \"password\": \"322121\"\r\n    }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "wrong password rider",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Wrong password returns 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Correct error\", function () {\r\n    pm.expect(data.error).to.eql(\"Invalid credentials\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"qa.rider186@example.com\",\r\n    \"password\": \"312144\"\r\n    }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "login authentication restaurant",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Login returns 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"JWT token exists\", function () {\r\n    pm.expect(response.token).to.exist;\r\n});\r\n\r\npm.test(\"JWT token is a string\", function () {\r\n    pm.expect(response.token).to.be.a(\"string\");\r\n});\r\n\r\npm.environment.set(\"token\", response.token);\r\n\r\nconsole.log(\"JWT Token:\", response.token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \r\n\r\n    \"id\": \"uuid\",\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1k@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "valid restaurant registration",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"User has an ID\", function () {\r\n    pm.expect(json.id).to.exist;\r\n});\r\n\r\npm.test(\"Name is correct\", function () {\r\n    pm.expect(json.name).to.eql(\"QA restaurant\");\r\n});\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\",\r\n    \"location\":\"cccdddddd\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "missing req field restaurant",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Correct validation error\", function () {\r\n    pm.expect(json.error).to.eql(\r\n        \"name, email, password and role are required\"\r\n    );\r\n});\r\n\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{   \"id\":\"44444444444\",\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "restaurant login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Login returns 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"JWT token exists\", function () {\r\n    pm.expect(response.token).to.exist;\r\n});\r\n\r\npm.test(\"JWT token is a string\", function () {\r\n    pm.expect(response.token).to.be.a(\"string\");\r\n});\r\n\r\npm.environment.set(\"token\", response.token);\r\n\r\nconsole.log(\"JWT Token:\", response.token);\r\n\r\n\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\"id\":\"44444444444\",\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\",\r\n    \"location\":\"cccdddddd\"\r\n    }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "restaurant valid login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Token exists\", function () {\r\n    pm.expect(data.token).to.exist;\r\n});\r\n\r\npm.test(\"Token is a string\", function () {\r\n    pm.expect(data.token).to.be.a(\"string\");\r\n});\r\n\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{   \"id\":\"44444444444\",\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "wrong pass restaurant",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Wrong password returns 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Correct error\", function () {\r\n    pm.expect(data.error).to.eql(\"Invalid credentials\");\r\n});\r\n\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/auth/login",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "missing bearer token restaurant",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Missing token error\", function () {\r\n    pm.expect(data.error).to.eql(\"Missing token\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "jwt generation and use restaurant",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Protected endpoint accepts JWT\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "jwt generation and use customer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Protected endpoint accepts JWT\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "missing bearer token customer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Missing token error\", function () {\r\n    pm.expect(data.error).to.eql(\"Missing token\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"qa.customer87t5y56fg2@example.com\",\r\n    \"password\": \"hh5883\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/customer",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "customer"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "missing bearer token rider",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Protected endpoint accepts JWT\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"qa.rider186@example.com\",\r\n    \"password\": \"322121\"\r\n\r\n    }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/rider",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "rider"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "jwt generation and use rider",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Protected endpoint accepts JWT\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "malformed token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Malformed token rejected\", function () {\r\n    pm.response.to.have.status(401);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "abc123",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "expired token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expired token rejected\", function () {\r\n    pm.response.to.have.status(401);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "abc123",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\",\r\n     \"address\":\"cccdddddd\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "sort_by=asc",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Response is an array\", function () {\r\n    pm.expect(data).to.be.an(\"array\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{supabase_service_role_api_key_05db}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\",\r\n     \"address\":\"cccdddddd\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants?sort_by=asc",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ],
+          "query": [
+            {
+              "key": "sort_by",
+              "value": "asc"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "sort_by=desc",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\nconst names = data.map(r => r.name);\r\n\r\nconst sorted = [...names].sort((a, b) =>\r\n    b.localeCompare(a)\r\n);\r\n\r\npm.test(\"Restaurants sorted descending\", function () {\r\n    pm.expect(names).to.eql(sorted);\r\n});"
+            ]
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{supabase_service_role_api_key_1bs2}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\",\r\n     \"address\":\"cccdddddd\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants?sort_by=desc",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ],
+          "query": [
+            {
+              "key": "sort_by",
+              "value": "desc"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "invalid sort by",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Invalid sort_by returns 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Error message exists\", function () {\r\n    pm.expect(data.error).to.exist;\r\n});"
+            ]
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{supabase_service_role_api_key_1bs2}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\",\r\n     \"address\":\"cccdddddd\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants?sort_by=random",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ],
+          "query": [
+            {
+              "key": "sort_by",
+              "value": "random"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "filter field and value",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Missing filter pair returns 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Error message exists\", function () {\r\n    pm.expect(data.error).to.exist;\r\n});"
+            ]
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{json_web_token_19u1}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\",\r\n     \"address\":\"cccdddddd\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants?filter_field=isOpen&filter_value=test",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ],
+          "query": [
+            {
+              "key": "filter_field",
+              "value": "isOpen"
+            },
+            {
+              "key": "filter_value",
+              "value": "test"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "invalid filter field",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Invalid filter field returns 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Error message exists\", function () {\r\n    pm.expect(data.error).to.exist;\r\n});"
+            ]
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{json_web_token_19u1}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\",\r\n     \"address\":\"cccdddddd\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants?filter_field=abc&filter_value=test",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ],
+          "query": [
+            {
+              "key": "filter_field",
+              "value": "abc"
+            },
+            {
+              "key": "filter_value",
+              "value": "test"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Boolean Filter",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"All results have isOpen=true\", function () {\r\n    data.forEach(item => {\r\n        pm.expect(item.isOpen).to.eql(true);\r\n    });\r\n});"
+            ]
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{json_web_token_19u1}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\",\r\n     \"address\":\"cccdddddd\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants?filter_field=isOpen&filter_value=true",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ],
+          "query": [
+            {
+              "key": "filter_field",
+              "value": "isOpen"
+            },
+            {
+              "key": "filter_value",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "numeric filter",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expired token rejected\", function () {\r\n    pm.response.to.have.status(401);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "abc123",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\",\r\n     \"address\":\"cccdddddd\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "case insensitive exact text filter",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expired token rejected\", function () {\r\n    pm.response.to.have.status(401);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "abc123",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\",\r\n     \"address\":\"cccdddddd\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "auto save user id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expired token rejected\", function () {\r\n    pm.response.to.have.status(401);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "abc123",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\",\r\n     \"address\":\"cccdddddd\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "save lab request id restaurant",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const data = pm.response.json();\r\n\r\nif (data._lab && data._lab.requestId) {\r\n    console.log(\"Lab Request ID:\", data._lab.requestId);\r\n    pm.environment.set(\"lastRequestId\", data._lab.requestId);\r\n}\r\n\r\npm.test(\"Lab request ID exists\", function () {\r\n    pm.expect(data._lab).to.exist;\r\n    pm.expect(data._lab.requestId).to.exist;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{supabase_service_role_api_key_19u1}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"id\": \"uuid\",\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1k@example.com\",\r\n    \"password\": \"pass2221\",\r\n        \"role\": \"restaurant\",\r\n        \"address\":\"dhaka\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "save lab request id customer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expired token rejected\", function () {\r\n    pm.response.to.have.status(401);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "abc123",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\",\r\n     \"address\":\"cccdddddd\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "save lab request id  rider",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expired token rejected\", function () {\r\n    pm.response.to.have.status(401);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "abc123",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "{{STQA-NAME}}",
+            "value": "{{STQA-KEY}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"ABC restaurant\",\r\n    \"email\": \"qa.restaurant1@example.com\",\r\n    \"password\": \"pass2221\",\r\n    \"role\": \"restaurant\",\r\n     \"address\":\"cccdddddd\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/restaurants",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "restaurants"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": ""
+    },
+    {
+      "key": "STQA-KEY",
+      "value": ""
+    },
+    {
+      "key": "STQA-NAME",
+      "value": ""
+    },
+    {
+      "key": "json_web_token_0gdh",
+      "secret": true
+    },
+    {
+      "key": "supabase_service_role_api_key_05db",
+      "secret": true
+    },
+    {
+      "key": "supabase_service_role_api_key_1bs2",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_19u1",
+      "secret": true
+    },
+    {
+      "key": "id",
+      "value": ""
+    },
+    {
+      "key": "restaurantid",
+      "value": ""
+    },
+    {
+      "key": "supabase_service_role_api_key_19u1",
+      "secret": true
+    }
+  ]
+}
